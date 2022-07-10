@@ -1,0 +1,45 @@
+name: Sample App Conainerization and Deployment
+
+on: [push]
+env:
+  DOCKER_USER_NAME: ${{secrets.DOCKER_USER_NAME}}
+  DOCKER_PASS: ${{secrets.DOCKER_PASS}}
+  REPO_NAME: amaresh1995
+
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.8"]
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup python
+      uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+    - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+  
+  containerize:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Docker login
+      run: |
+        docker login -u $DOCKER_USER_NAME -p $DOCKER_PASS
+
+    - name: Build Docker file
+      run: docker build . --file Dockerfile --tag $DOCKER_USER_NAME/$REPO_NAME:$GITHUB_SHA
+
+    - name: Docker Push
+      run: docker push $DOCKER_USER_NAME/$REPO_NAME:$GITHUB_SHA
