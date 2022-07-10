@@ -15,9 +15,12 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
+      run: docker build . --file Dockerfile --tag amaresh1995/pythonapp:latest
       
     - name: Docker login
       run: docker login -u ${{secrets.DOCKER_USER_NAME}} -p ${{secrets.DOCKER_PASS}}
+      
+    - name: Docker Push
+      run: docker push amaresh1995/pythonapp:latest
       
     
